@@ -1,0 +1,30 @@
+# Dossier de travail local Terraform (binaires providers)
+.terraform/
+
+# State — normalement sur S3 mais au cas où
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+
+# Plans binaires
+tfplan
+*.tfplan
+*.tfplan.json
+
+# Variables sensibles — crée des .tfvars.example à la place
+*.tfvars
+!*.tfvars.example
+
+# Credentials
+*.pem
+*.key
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
