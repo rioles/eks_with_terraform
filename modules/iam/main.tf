@@ -145,7 +145,6 @@ resource "aws_iam_instance_profile" "bastion" {
   tags        = var.tags
 }
 
-# modules/iam/main.tf
 resource "aws_iam_policy" "pod_secrets_access" {
   name_prefix = "${var.cluster_name}-pod-secrets-"
   policy      = data.aws_iam_policy_document.pod_secrets_access.json
@@ -157,27 +156,98 @@ resource "aws_iam_role_policy_attachment" "pod_secrets_access" {
   policy_arn = aws_iam_policy.pod_secrets_access.arn
 }
 
+resource "aws_iam_policy" "s3_access" {
+  name   = "eks-pod-s3-policy-${var.cluster_name}"
+  policy = data.aws_iam_policy_document.s3_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "s3_access" {
+  role       = aws_iam_role.s3_access.name
+  policy_arn = aws_iam_policy.s3_access.arn
+}
+resource "aws_iam_role" "s3_access" {
+  name_prefix        = "${var.cluster_name}-pod-s3-"
+  assume_role_policy = data.aws_iam_policy_document.eks_pod_identity_assume.json
+  tags               = var.tags
+}
+
+
 resource "aws_eks_pod_identity_association" "this" {
-  for_each        = { for idx, assoc in var.pod_identity_associations : "${assoc.namespace}/${assoc.service_account}" => assoc }
+  for_each        = { for assoc in var.pod_identity_associations : "${assoc.namespace}/${assoc.service_account}" => assoc }
+  
   cluster_name    = var.cluster_name
   namespace       = each.value.namespace
   service_account = each.value.service_account
-  role_arn        = aws_iam_role.pod_role.arn
+  
+  role_arn        = each.value.role_arn 
 }
 
-# ─────────────────────────────────────────
-# 2. Créer la policy
-# ─────────────────────────────────────────
+
 resource "aws_iam_policy" "bastion_iam_permissions" {
   name_prefix = "${var.cluster_name}-bastion-iam-"
   policy      = data.aws_iam_policy_document.bastion_iam_permissions.json
   tags        = var.tags
 }
 
-# ─────────────────────────────────────────
-# 3. Attacher au rôle bastion ← MOMENT CLÉ
-# ─────────────────────────────────────────
 resource "aws_iam_role_policy_attachment" "bastion_iam_permissions" {
   role       = aws_iam_role.bastion_role.name
   policy_arn = aws_iam_policy.bastion_iam_permissions.arn
+}
+
+resource "aws_cloudwatch_event_rule" "spot_interruption" {
+  name        = "${var.cluster_name}-spot-interruption"
+  description = "Capture les alertes d'interruption d'instances Spot pour Karpenter"
+  event_pattern = jsonencode({
+    source      = ["aws.ec2"]
+    detail-type = ["EC2 Spot Instance Interruption Warning"]
+  })
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_event_rule" "rebalance_recommendation" {
+  name        = "${var.cluster_name}-rebalance-recommendation"
+  description = "Capture les recommandations de rebalancement EC2 pour Karpenter"
+  event_pattern = jsonencode({
+    source      = ["aws.ec2"]
+    detail-type = ["EC2 Instance Rebalance Recommendation"]
+  })
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_event_rule" "instance_state_change" {
+  name        = "${var.cluster_name}-instance-state-change"
+  description = "Capture les changements d'état des instances pour Karpenter"
+  event_pattern = jsonencode({
+    source      = ["aws.ec2"]
+    detail-type = ["EC2 Instance State-change Notification"]
+  })
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_event_target" "spot_interruption" {
+  rule      = aws_cloudwatch_event_rule.spot_interruption.name
+  target_id = "${var.cluster_name}-karpenter-spot-target"
+  arn       = aws_sqs_queue.karpenter_interruption.arn
+}
+
+resource "aws_cloudwatch_event_target" "rebalance_recommendation" {
+  rule      = aws_cloudwatch_event_rule.rebalance_recommendation.name
+  target_id = "${var.cluster_name}-karpenter-rebalance-target"
+  arn       = aws_sqs_queue.karpenter_interruption.arn
+}
+
+resource "aws_cloudwatch_event_target" "instance_state_change" {
+  rule      = aws_cloudwatch_event_rule.instance_state_change.name
+  target_id = "${var.cluster_name}-karpenter-state-target"
+  arn       = aws_sqs_queue.karpenter_interruption.arn
+}
+resource "aws_iam_role_policy_attachment" "karpenter_node_ssm" {
+  role       = aws_iam_role.karpenter_node.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "karpenter_node" {
+  name_prefix = "karp-node-${var.cluster_name}-"
+  role        = aws_iam_role.karpenter_node.name
+  tags        = var.tags
 }

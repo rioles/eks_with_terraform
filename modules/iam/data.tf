@@ -123,14 +123,23 @@ data "aws_iam_policy_document" "karpenter_interruption_policy" {
 
     principals {
       type        = "Service"
-      identifiers = ["events.amazonaws.com", "sqs.amazonaws.com"]
+      identifiers = ["events.amazonaws.com"]  # seulement EventBridge
     }
 
     actions   = ["sqs:SendMessage"]
     resources = [aws_sqs_queue.karpenter_interruption.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [
+        aws_cloudwatch_event_rule.spot_interruption.arn,
+        aws_cloudwatch_event_rule.rebalance_recommendation.arn,
+        aws_cloudwatch_event_rule.instance_state_change.arn
+      ]
+    }
   }
 }
-
 data "aws_iam_policy_document" "ec2_assume_role" {
   statement {
     sid     = "EC2AssumeRole"
@@ -223,6 +232,32 @@ data "aws_iam_policy_document" "bastion_iam_permissions" {
     resources = [
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*"
     ]
+  }
+}
+
+data "aws_iam_policy_document" "eks_pod_identity_assume" {
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["pods.eks.amazonaws.com"]
+    }
+    actions = [
+      "sts:AssumeRole",
+      "sts:TagSession"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "s3_access" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:ListBucket",
+    ]
+    resources = ["*"]  # ← tous les buckets
   }
 }
 

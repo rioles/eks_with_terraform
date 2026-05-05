@@ -240,3 +240,13 @@ variable "vpc_cni_version" {
   default = null
 }
 
+variable "pod_identity_associations" {
+  description = "Liste des associations Pod Identity (namespace + service account)"
+  type = list(object({
+    namespace       = string
+    service_account = string
+    role_arn        = string
+  }))
+  default = []
+}
+

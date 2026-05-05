@@ -1,4 +1,14 @@
 data "aws_caller_identity" "current" {}
+locals {
+  pod_identity_associations = [
+    {
+      namespace       = "production"
+      service_account = "app-s3-sa"
+      role_arn        = module.iam.pod_s3_role_arn  # ← l'output du module
+    }
+  ]
+}
+
 module "vpc" {
   source = "./modules/vpc"
   providers = {
@@ -44,6 +54,7 @@ module "iam" {
   cluster_name = var.cluster_name
   tags         = var.tags
   cluster_arn  = "arn:aws:eks:${var.region}:${data.aws_caller_identity.current.account_id}:cluster/${var.cluster_name}"
+  pod_identity_associations = local.pod_identity_associations
 }
 
 module "eks" {

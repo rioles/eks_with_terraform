@@ -16,6 +16,7 @@ variable "pod_identity_associations" {
   type = list(object({
     namespace       = string
     service_account = string
+    role_arn        = string
   }))
   default = []
 }
@@ -29,4 +30,5 @@ variable "primary" {
   type        = string
   default     = "us-east-1"
 }
+
 

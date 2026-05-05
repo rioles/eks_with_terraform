@@ -30,19 +30,24 @@ resource "aws_instance" "bastion" {
   }
 
   # Installation automatique des outils au démarrage
-  user_data = <<-EOF
+    user_data = <<-EOF
     #!/bin/bash
+    set -e  # ← arrête le script si une commande échoue
     apt-get update -y
 
-    # Installer AWS CLI
-    apt-get install -y awscli unzip curl
+    # AWS CLI + dépendances
+    apt-get install -y awscli unzip curl git jq
 
-    # Installer kubectl
+    # kubectl
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     chmod +x kubectl
     mv kubectl /usr/local/bin/
 
-    # Configurer kubeconfig automatiquement
+    # Helm
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    # Configurer kubeconfig
+    mkdir -p /home/ubuntu/.kube
     aws eks update-kubeconfig \
       --region ${var.primary} \
       --name ${var.cluster_name} \
