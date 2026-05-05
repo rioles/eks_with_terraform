@@ -12,7 +12,6 @@ tfplan
 *.tfplan.json
 
 # Variables sensibles — crée des .tfvars.example à la place
-*.tfvars
 !*.tfvars.example
 
 # Credentials
