@@ -24,6 +24,7 @@ module "vpc" {
   tags            = var.tags
   enable_nat_gateway = true
   single_nat_gateway = true
+  cluster_name = var.cluster_name
 }
 
 module "kms" {
