@@ -1,18 +1,20 @@
-# Dossier de travail local Terraform (binaires providers)
-.terraform/
+# Terraform — dossiers de travail
+aws_eks/.terraform/
+aws_eks/.terraform.lock.hcl
 
 # State — normalement sur S3 mais au cas où
-*.tfstate
-*.tfstate.backup
-*.tfstate.lock.info
+aws_eks/*.tfstate
+aws_eks/*.tfstate.backup
+aws_eks/*.tfstate.lock.info
 
 # Plans binaires
-tfplan
-*.tfplan
-*.tfplan.json
+aws_eks/tfplan
+aws_eks/*.tfplan
+aws_eks/*.tfplan.json
 
-# Variables sensibles — crée des .tfvars.example à la place
-!*.tfvars.example
+# Variables sensibles
+aws_eks/*.tfvars
+!aws_eks/*.tfvars.example
 
 # Credentials
 *.pem
@@ -24,9 +26,6 @@ tfplan
 .DS_Store
 Thumbs.db
 
-.terraform.lock.hcl
-
 # IDE
 .vscode/
 .idea/
-
