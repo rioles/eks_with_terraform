@@ -233,6 +233,18 @@ data "aws_iam_policy_document" "bastion_iam_permissions" {
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*"
     ]
   }
+  statement {
+    sid    = "AllowSSMReadOnly"
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:DescribeParameters"
+    ]
+    resources = [
+      "arn:aws:ssm:*::parameter/aws/service/*"
+    ]
+  }
 }
 
 data "aws_iam_policy_document" "eks_pod_identity_assume" {
