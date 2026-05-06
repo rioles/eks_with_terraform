@@ -13,7 +13,6 @@ aws_eks/*.tfplan
 aws_eks/*.tfplan.json
 
 # Variables sensibles
-aws_eks/*.tfvars
 !aws_eks/*.tfvars.example
 
 # Credentials
