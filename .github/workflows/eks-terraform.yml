@@ -26,6 +26,7 @@ jobs:
   terraform:
     name: Terraform ${{ github.event.inputs.action }}
     runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         shell: bash
