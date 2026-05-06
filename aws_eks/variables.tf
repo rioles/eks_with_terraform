@@ -179,8 +179,8 @@ variable "my_ip" {
 }
 
 variable "bucket_name" {
-	type = string
-	default = "ro-and-rodolpho-buckets"
+  type    = string
+  default = "ro-and-rodolpho-buckets"
 }
 
 variable "enable_nat_gateway" {
@@ -198,20 +198,20 @@ variable "single_nat_gateway" {
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
-  default = "video-streaming-cluster"
+  default     = "video-streaming-cluster"
 }
 
 variable "bastion_instance_type" {
   description = "EC2 instance type for the bastion host"
   type        = string
-  default     = "t2.medium" 
+  default     = "t2.medium"
 }
 
 variable "kubernetes_version" {
   description = "Version of Kubernetes for the EKS cluster"
   type        = string
   default     = "1.31"
-  
+
 }
 variable "endpoint_public_access" {
   description = "Indique si le serveur d'API EKS est accessible publiquement via Internet."
