@@ -250,3 +250,15 @@ variable "pod_identity_associations" {
   default = []
 }
 
+variable "public_key" {
+  description = "SSH public key"
+  type        = string
+  default     = ""
+}
+
+variable "public_key_path" {
+  description = "Path to SSH public key"
+  type        = string
+  default     = "~/.ssh/k8s-key.pub" # ← utilisé en local
+}
+

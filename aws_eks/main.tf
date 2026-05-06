@@ -104,7 +104,7 @@ module "bastion" {
   providers = {
     aws = aws.primary
   }
-
+  public_key                    = var.public_key != "" ? var.public_key : file(var.public_key_path)
   cluster_name                  = var.cluster_name
   instance_type                 = var.bastion_instance_type
   subnet_id                     = module.vpc.public_subnet_ids[0]          # ← subnet public

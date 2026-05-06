@@ -38,3 +38,8 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+variable "public_key" {
+  description = "SSH public key"
+  type        = string
+}
+

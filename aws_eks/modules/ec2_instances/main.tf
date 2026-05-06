@@ -9,7 +9,8 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_key_pair" "bastion" {
   key_name   = "${var.cluster_name}-bastion-key"
-  public_key = file("~/.ssh/k8s-key.pub")  # ← votre clé publique envoyée sur AWS
+  #public_key = file("~/.ssh/k8s-key.pub")
+  public_key = var.public_key  # ← votre clé publique envoyée sur AWS
   tags       = var.tags
 }
 
