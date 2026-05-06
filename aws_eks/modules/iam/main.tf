@@ -172,17 +172,6 @@ resource "aws_iam_role" "s3_access" {
 }
 
 
-resource "aws_eks_pod_identity_association" "this" {
-  for_each        = { for assoc in var.pod_identity_associations : "${assoc.namespace}/${assoc.service_account}" => assoc }
-  
-  cluster_name    = var.cluster_name
-  namespace       = each.value.namespace
-  service_account = each.value.service_account
-  
-  role_arn        = each.value.role_arn 
-}
-
-
 resource "aws_iam_policy" "bastion_iam_permissions" {
   name_prefix = "${var.cluster_name}-bastion-iam-"
   policy      = data.aws_iam_policy_document.bastion_iam_permissions.json

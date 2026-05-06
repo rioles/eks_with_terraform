@@ -9,6 +9,8 @@ locals {
   ]
 }
 
+
+
 module "vpc" {
   source = "./modules/vpc"
   providers = {
@@ -52,10 +54,10 @@ module "iam" {
   }
 
 
-  cluster_name              = var.cluster_name
-  tags                      = var.tags
-  cluster_arn               = "arn:aws:eks:${var.region}:${data.aws_caller_identity.current.account_id}:cluster/${var.cluster_name}"
-  pod_identity_associations = local.pod_identity_associations
+  cluster_name = var.cluster_name
+  tags         = var.tags
+  cluster_arn  = "arn:aws:eks:${var.region}:${data.aws_caller_identity.current.account_id}:cluster/${var.cluster_name}"
+  #pod_identity_associations = local.pod_identity_associations
 }
 
 module "eks" {
@@ -128,5 +130,20 @@ module "eks_access" {
   bastion_role_arn        = module.iam.bastion_role_arn
 
   depends_on = [module.eks] # cluster doit exister avant
+}
+
+# Dans ton main.tf root, après tous les modules
+resource "aws_eks_pod_identity_association" "this" {
+  for_each = {
+    for assoc in local.pod_identity_associations :
+    "${assoc.namespace}/${assoc.service_account}" => assoc
+  }
+
+  cluster_name    = var.cluster_name
+  namespace       = each.value.namespace
+  service_account = each.value.service_account
+  role_arn        = each.value.role_arn
+
+  depends_on = [module.eks, module.iam] # ← attend les deux ✅
 }
 
