@@ -26,6 +26,7 @@ jobs:
   terraform:
     name: Terraform ${{ github.event.inputs.action }}
     runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         shell: bash
@@ -37,7 +38,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.9.3
+          terraform_version: 1.13.4
       - name: Cache Terraform
         uses: actions/cache@v3
         with:
