@@ -19,7 +19,7 @@ variable "environment" {
 variable "my_local_ip" {
   description = "Mon adresse IP publique locale"
   type        = string
-  default     = "41.79.219.100/32" # 41.79.219.100 Remplace par ton IP réelle (ajoute /32 à la fin)
+  default     = "41.79.219.43/32" # 41.79.219.100 Remplace par ton IP réelle (ajoute /32 à la fin)
 }
 
 variable "primary_vpc_cidr_block" {
@@ -175,12 +175,12 @@ variable "allowed_origins" {
 variable "my_ip" {
   description = "IP publique pour accès SSH"
   type        = string
-  default     = "197.234.221.176/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
+  default     = "41.79.219.43/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
 }
 
 variable "bucket_name" {
   type    = string
-  default = "ro-and-rodolpho-buckets"
+  default = "state-terraform-bucket-videostream-1"
 }
 
 variable "enable_nat_gateway" {
@@ -210,7 +210,7 @@ variable "bastion_instance_type" {
 variable "kubernetes_version" {
   description = "Version of Kubernetes for the EKS cluster"
   type        = string
-  default     = "1.31"
+  default     = "1.33"
 
 }
 variable "endpoint_public_access" {
