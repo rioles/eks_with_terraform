@@ -38,7 +38,7 @@ output "bastion_instance_profile_arn" {
   value = aws_iam_instance_profile.bastion.arn
 }
 
-output "pod_role_arn" {                        # ← manquant
+output "pod_role_arn" { # ← manquant
   value = aws_iam_role.pod_role.arn
 }
 

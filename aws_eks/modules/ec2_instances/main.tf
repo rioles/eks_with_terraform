@@ -8,18 +8,18 @@ terraform {
 data "aws_caller_identity" "current" {}
 
 resource "aws_key_pair" "bastion" {
-  key_name   = "${var.cluster_name}-bastion-key"
+  key_name = "${var.cluster_name}-bastion-key"
   #public_key = file("~/.ssh/k8s-key.pub")
-  public_key = var.public_key  # ← votre clé publique envoyée sur AWS
+  public_key = var.public_key # ← votre clé publique envoyée sur AWS
   tags       = var.tags
 }
 
 resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
-  subnet_id                   = var.subnet_id              # ← subnet public depuis module/vpc
-  vpc_security_group_ids      = [var.bastion_sg_id]        # ← SG depuis module/eks
-  iam_instance_profile        = var.bastion_instance_profile_name  # ← depuis module/iam
+  subnet_id                   = var.subnet_id                     # ← subnet public depuis module/vpc
+  vpc_security_group_ids      = [var.bastion_sg_id]               # ← SG depuis module/eks
+  iam_instance_profile        = var.bastion_instance_profile_name # ← depuis module/iam
   associate_public_ip_address = true
   key_name                    = aws_key_pair.bastion.key_name
 
@@ -31,7 +31,7 @@ resource "aws_instance" "bastion" {
   }
 
   # Installation automatique des outils au démarrage
-    user_data = <<-EOF
+  user_data = <<-EOF
     #!/bin/bash
     set -e  # ← arrête le script si une commande échoue
     apt-get update -y

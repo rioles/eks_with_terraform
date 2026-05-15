@@ -14,7 +14,7 @@ provider "aws" {
 
 
 
-data "aws_caller_identity" "current" {}# --- CLUSTER ROLE ---
+data "aws_caller_identity" "current" {} # --- CLUSTER ROLE ---
 
 locals {
   cluster_name = split("/", var.cluster_arn)[1]

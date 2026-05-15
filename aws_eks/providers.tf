@@ -8,7 +8,7 @@ terraform {
 
   backend "s3" {
     region       = "us-east-1"
-    bucket       = "ro-and-rodolpho-buckets"
+    bucket       = "state-terraform-bucket-videostream-1"
     key          = "dev/terraform.tfstate"
     use_lockfile = "true"
     encrypt      = true

@@ -135,13 +135,13 @@ resource "aws_eks_cluster" "main" {
     security_group_ids      = [aws_security_group.cluster.id]
   }
 
-   encryption_config {
+  encryption_config {
     resources = ["secrets"]
     provider {
-      key_arn = var.kms_key_arn  # ← reçu depuis module/kms
+      key_arn = var.kms_key_arn # ← reçu depuis module/kms
     }
   }
-  
+
   access_config {
     authentication_mode                         = "API_AND_CONFIG_MAP"
     bootstrap_cluster_creator_admin_permissions = true
@@ -181,7 +181,7 @@ resource "aws_eks_node_group" "main" {
   }
 
   labels = {
-    role = "system"
+    role                      = "system"
     "karpenter.sh/controller" = "true"
   }
 
@@ -239,8 +239,8 @@ resource "aws_security_group_rule" "bastion_to_cluster_api" {
   from_port                = 443
   to_port                  = 443
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.cluster.id     # Destination : Le Cluster
-  source_security_group_id = aws_security_group.bastion_sg.id  # Source : Ton Bastion
+  security_group_id        = aws_security_group.cluster.id    # Destination : Le Cluster
+  source_security_group_id = aws_security_group.bastion_sg.id # Source : Ton Bastion
 }
 
 resource "aws_eks_addon" "pod_identity" {

@@ -61,6 +61,19 @@ data "aws_iam_policy_document" "karpenter_controller_base" {
       "ec2:DescribeInstanceTypeOfferings",
       "ec2:DescribeAvailabilityZones",
       "ec2:DescribeSpotPriceHistory",
+      "ec2:DescribeInstanceStatus",
+      "ec2:ModifyInstanceAttribute",
+      "ec2:DescribeFleets",
+      "ec2:ModifyInstanceAttribute",
+      "ec2:GetSpotPlacementScores",
+      "ec2:DescribeVolumes",
+      "ec2:DescribeVolumeStatus",
+      "ec2:CreateVolume",
+      "ec2:DeleteVolume",
+      "ec2:AttachVolume",
+      "ec2:DetachVolume",
+      # T-family instances
+      "ec2:DescribeInstanceCreditSpecifications",
     ]
     resources = ["*"]
   }
@@ -90,6 +103,23 @@ data "aws_iam_policy_document" "karpenter_controller_base" {
     ]
     resources = ["*"]
   }
+
+  statement {
+  sid    = "AllowVPC"
+  effect = "Allow"
+  actions = [
+    "ec2:DescribeNetworkInterfaces",
+    "ec2:CreateNetworkInterface",
+    "ec2:DeleteNetworkInterface",
+  ]
+  resources = ["*"]
+}
+  statement {
+    sid       = "AllowSSM"
+    effect    = "Allow"
+    actions   = ["ssm:GetParameter"]
+    resources = ["arn:aws:ssm:*:*:parameter/aws/service/eks/optimized-ami/*"]
+  }
 }
 
 data "aws_iam_policy_document" "karpenter_controller" {
@@ -111,6 +141,7 @@ data "aws_iam_policy_document" "karpenter_controller" {
       "sqs:GetQueueAttributes",
       "sqs:GetQueueUrl",
       "sqs:ReceiveMessage",
+
     ]
     resources = [aws_sqs_queue.karpenter_interruption.arn]
   }
@@ -123,7 +154,7 @@ data "aws_iam_policy_document" "karpenter_interruption_policy" {
 
     principals {
       type        = "Service"
-      identifiers = ["events.amazonaws.com"]  # seulement EventBridge
+      identifiers = ["events.amazonaws.com"] # seulement EventBridge
     }
 
     actions   = ["sqs:SendMessage"]
@@ -132,7 +163,7 @@ data "aws_iam_policy_document" "karpenter_interruption_policy" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [
+      values = [
         aws_cloudwatch_event_rule.spot_interruption.arn,
         aws_cloudwatch_event_rule.rebalance_recommendation.arn,
         aws_cloudwatch_event_rule.instance_state_change.arn
@@ -202,7 +233,7 @@ data "aws_iam_policy_document" "bastion_iam_permissions" {
     sid    = "IAMPolicyManagement"
     effect = "Allow"
     actions = [
-      "iam:CreatePolicy",        # ← aws iam create-policy
+      "iam:CreatePolicy", # ← aws iam create-policy
       "iam:DeletePolicy",
       "iam:GetPolicy",
       "iam:ListPolicies",
@@ -219,15 +250,15 @@ data "aws_iam_policy_document" "bastion_iam_permissions" {
     sid    = "IAMRoleManagement"
     effect = "Allow"
     actions = [
-      "iam:CreateRole",            # créer le rôle LB Controller
+      "iam:CreateRole", # créer le rôle LB Controller
       "iam:DeleteRole",
       "iam:GetRole",
       "iam:ListRoles",
       "iam:TagRole",
-      "iam:AttachRolePolicy",      # attacher la policy au rôle
+      "iam:AttachRolePolicy", # attacher la policy au rôle
       "iam:DetachRolePolicy",
       "iam:ListAttachedRolePolicies",
-      "iam:PassRole",              # passer le rôle à un service AWS
+      "iam:PassRole", # passer le rôle à un service AWS
     ]
     resources = [
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*"
@@ -269,7 +300,7 @@ data "aws_iam_policy_document" "s3_access" {
       "s3:PutObject",
       "s3:ListBucket",
     ]
-    resources = ["*"]  # ← tous les buckets
+    resources = ["*"] # ← tous les buckets
   }
 }
 

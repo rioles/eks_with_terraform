@@ -34,7 +34,7 @@ output "node_security_group_id" {
   value       = aws_security_group.node.id
 }
 
-output "bastion_sg_id" {                             # ← manquant, ajouté
+output "bastion_sg_id" { # ← manquant, ajouté
   description = "Security group ID du bastion"
   value       = aws_security_group.bastion_sg.id
 }
