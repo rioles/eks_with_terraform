@@ -174,8 +174,8 @@ variable "allowed_origins" {
 }
 variable "my_ip" {
   description = "IP publique pour accès SSH"
-  type        = string
-  default     = "41.79.219.43/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
+  type        = string 
+  default     = "41.79.217.120/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
 }
 
 variable "bucket_name" {
