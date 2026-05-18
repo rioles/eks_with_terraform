@@ -19,7 +19,7 @@ variable "environment" {
 variable "my_local_ip" {
   description = "Mon adresse IP publique locale"
   type        = string
-  default     = "41.79.219.43/32" # 41.79.219.100 Remplace par ton IP réelle (ajoute /32 à la fin)
+  default     = "197.234.221.220/32" # 41.79.219.100 Remplace par ton IP réelle (ajoute /32 à la fin)
 }
 
 variable "primary_vpc_cidr_block" {
@@ -175,9 +175,8 @@ variable "allowed_origins" {
 variable "my_ip" {
   description = "IP publique pour accès SSH"
   type        = string
-  default     = "41.79.217.120/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
+  default     = "197.234.221.220/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
 }
-
 variable "bucket_name" {
   type    = string
   default = "state-terraform-bucket-videostream-1"

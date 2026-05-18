@@ -105,20 +105,35 @@ data "aws_iam_policy_document" "karpenter_controller_base" {
   }
 
   statement {
-  sid    = "AllowVPC"
-  effect = "Allow"
-  actions = [
-    "ec2:DescribeNetworkInterfaces",
-    "ec2:CreateNetworkInterface",
-    "ec2:DeleteNetworkInterface",
-  ]
-  resources = ["*"]
-}
+    sid    = "AllowVPC"
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:CreateNetworkInterface",
+      "ec2:DeleteNetworkInterface",
+    ]
+    resources = ["*"]
+  }
   statement {
     sid       = "AllowSSM"
     effect    = "Allow"
     actions   = ["ssm:GetParameter"]
     resources = ["arn:aws:ssm:*:*:parameter/aws/service/eks/optimized-ami/*"]
+  }
+
+  statement {
+    sid    = "AllowInstanceProfile"
+    effect = "Allow"
+    actions = [
+      "iam:ListInstanceProfiles",
+      "iam:GetInstanceProfile",
+      "iam:CreateInstanceProfile",
+      "iam:DeleteInstanceProfile",
+      "iam:AddRoleToInstanceProfile",
+      "iam:RemoveRoleFromInstanceProfile",
+      "iam:TagInstanceProfile",
+    ]
+    resources = ["*"]
   }
 }
 

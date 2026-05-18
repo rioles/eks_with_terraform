@@ -240,3 +240,5 @@ resource "aws_iam_instance_profile" "karpenter_node" {
   role        = aws_iam_role.karpenter_node.name
   tags        = var.tags
 }
+
+

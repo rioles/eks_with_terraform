@@ -1,13 +1,5 @@
 data "aws_caller_identity" "current" {}
-locals {
-  pod_identity_associations = [
-    {
-      namespace       = "production"
-      service_account = "app-s3-sa"
-      role_arn        = module.iam.pod_s3_role_arn # ← l'output du module
-    }
-  ]
-}
+
 
 
 
