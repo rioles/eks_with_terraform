@@ -209,7 +209,7 @@ variable "bastion_instance_type" {
 variable "kubernetes_version" {
   description = "Version of Kubernetes for the EKS cluster"
   type        = string
-  default     = "1.33"
+  default     = "1.36"
 
 }
 variable "endpoint_public_access" {
