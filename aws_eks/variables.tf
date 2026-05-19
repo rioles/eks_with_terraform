@@ -261,3 +261,7 @@ variable "public_key_path" {
   default     = "~/.ssh/k8s-key.pub" # ← utilisé en local
 }
 
+variable "node_role_arn" {
+  type = string
+}
+

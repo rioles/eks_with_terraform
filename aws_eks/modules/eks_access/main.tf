@@ -26,10 +26,7 @@ resource "aws_eks_access_entry" "karpenter_node" {
   type          = "EC2_LINUX"
 }
 
-import {
-  to = aws_eks_access_entry.system_node
-  id = "${var.cluster_name}:${var.node_role_arn}"
-}
+
 
 resource "aws_eks_access_entry" "system_node" {
   cluster_name  = var.cluster_name
