@@ -6,19 +6,7 @@ terraform {
   }
 }
 
-# Vérifie si l'access entry existe déjà dans AWS
-data "aws_eks_access_entry" "system_node_existing" {
-  cluster_name  = var.cluster_name
-  principal_arn = var.node_role_arn
 
-  # Ne pas planter si elle n'existe pas
-  lifecycle {
-    postcondition {
-      condition     = true
-      error_message = ""
-    }
-  }
-}
 
 resource "aws_eks_access_entry" "karpenter_node" {
   cluster_name  = var.cluster_name
