@@ -263,5 +263,6 @@ variable "public_key_path" {
 
 variable "node_role_arn" {
   type = string
+  default = "" # Laisse vide pour que Terraform puisse le remplir après la création du rôle IAM
 }
 

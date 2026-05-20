@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" {}
 
+import {
+  to = aws_eks_access_entry.system_node
+  id = "${var.cluster_name}:${module.iam.node_role_arn}"
+}
 
 module "vpc" {
   source = "./modules/vpc"
