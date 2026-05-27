@@ -319,3 +319,29 @@ data "aws_iam_policy_document" "s3_access" {
   }
 }
 
+data "aws_iam_policy_document" "eso_keycloak_secret_policy" {
+  statement {
+    sid    = "AllowReadKeycloakSecret"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = ["*"] 
+  }
+}
+
+data "aws_iam_policy_document" "register_ms_secret_access" {
+  statement {
+    sid    = "AllowReadRegisterMSSecret"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = ["*"] 
+  }
+}
+
+
+

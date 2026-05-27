@@ -45,3 +45,18 @@ output "pod_role_arn" { # ← manquant
 output "pod_s3_role_arn" {
   value = aws_iam_role.s3_access.arn
 }
+
+
+output "eso_keycloak_role_arn" {
+  value       = aws_iam_role.eso_keycloak_role.arn
+  description = "ARN du role IAM pour External Secrets Operator"
+}
+
+output "alb_controller_role_arn" {
+  value       = aws_iam_role.aws_load_balancer_controller.arn
+  description = "ARN du role IAM pour l'AWS Load Balancer Controller"
+}
+
+output "register_ms_role_arn" {
+  value = aws_iam_role.register_ms.arn
+}

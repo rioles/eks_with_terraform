@@ -19,7 +19,7 @@ variable "environment" {
 variable "my_local_ip" {
   description = "Mon adresse IP publique locale"
   type        = string
-  default     = "197.234.221.220/32" # 41.79.219.100 Remplace par ton IP réelle (ajoute /32 à la fin)
+  default     = "41.79.219.107/32" # 41.79.219.100 Remplace par ton IP réelle (ajoute /32 à la fin)
 }
 
 variable "primary_vpc_cidr_block" {
@@ -175,7 +175,7 @@ variable "allowed_origins" {
 variable "my_ip" {
   description = "IP publique pour accès SSH"
   type        = string
-  default     = "197.234.221.220/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
+  default     = "41.79.219.107/32" # Remplace par ton IP réelle (ajoute /32 à la fin)
 }
 variable "bucket_name" {
   type    = string
@@ -209,7 +209,7 @@ variable "bastion_instance_type" {
 variable "kubernetes_version" {
   description = "Version of Kubernetes for the EKS cluster"
   type        = string
-  default     = "1.36"
+  default     = "1.34"
 
 }
 variable "endpoint_public_access" {
@@ -262,7 +262,7 @@ variable "public_key_path" {
 }
 
 variable "node_role_arn" {
-  type = string
+  type    = string
   default = "" # Laisse vide pour que Terraform puisse le remplir après la création du rôle IAM
 }
 

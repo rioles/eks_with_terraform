@@ -31,4 +31,22 @@ variable "primary" {
   default     = "us-east-1"
 }
 
+variable "eso_tags" {
+  type        = map(string)
+  description = "Tags spécifiques pour les ressources liées à External Secrets / Keycloak"
+  default     = {
+    Component = "external-secrets"
+    App       = "keycloak"
+  }
+}
+
+variable "register_ms_tags" {
+  type        = map(string)
+  description = "Tags spécifiques pour les ressources liées au Register Microservice"
+  default = {
+    Project   = "register-microservice"
+    Component = "register-ms"
+  }
+}
+
 

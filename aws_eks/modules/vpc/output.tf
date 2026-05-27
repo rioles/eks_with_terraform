@@ -42,3 +42,8 @@ output "internet_gateway_id" {
   description = "ID de l'Internet Gateway"
   value       = aws_internet_gateway.main.id
 }
+
+output "ingress_controller_sg_id" {
+  value       = aws_security_group.ingress_controller_sg.id
+  description = "L'ID du Security Group de l'Ingress Controller (à passer aux modules applicatifs)"
+}

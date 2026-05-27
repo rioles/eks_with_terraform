@@ -241,4 +241,59 @@ resource "aws_iam_instance_profile" "karpenter_node" {
   tags        = var.tags
 }
 
+resource "aws_iam_policy" "eso_keycloak_policy" {
+  name_prefix = "${var.cluster_name}-eso-keycloak-"
+  policy      = data.aws_iam_policy_document.eso_keycloak_secret_policy.json
+  tags        = var.eso_tags
+}
+
+resource "aws_iam_role" "eso_keycloak_role" {
+  name_prefix        = "${var.cluster_name}-eso-keycloak-"
+  assume_role_policy = data.aws_iam_policy_document.pod_identity_assume_role.json
+  tags               = var.eso_tags
+}
+
+resource "aws_iam_role_policy_attachment" "eso_keycloak_attach" {
+  role       = aws_iam_role.eso_keycloak_role.name
+  policy_arn = aws_iam_policy.eso_keycloak_policy.arn
+}
+
+resource "aws_iam_policy" "register_ms_secret_access" {
+  name_prefix = "${var.cluster_name}-register-ms-"
+  policy      = data.aws_iam_policy_document.register_ms_secret_access.json
+  tags        = var.register_ms_tags
+}
+
+resource "aws_iam_role" "register_ms" {
+  name_prefix        = "${var.cluster_name}-register-ms-"
+  assume_role_policy = data.aws_iam_policy_document.eks_pod_identity_assume.json
+  tags               = var.register_ms_tags
+}
+
+resource "aws_iam_role_policy_attachment" "register_ms" {
+  role       = aws_iam_role.register_ms.name
+  policy_arn = aws_iam_policy.register_ms_secret_access.arn
+}
+
+
+
+resource "aws_iam_policy" "aws_load_balancer_controller" {
+  name        = "${var.cluster_name}-AWSLoadBalancerControllerIAMPolicy"
+  path        = "/"
+  description = "Politique requise par l'AWS Load Balancer Controller pour EKS"  
+  policy      = file("${path.module}/iam_policy_alb.json")
+  tags        = var.tags
+}
+
+
+resource "aws_iam_role" "aws_load_balancer_controller" {
+  name_prefix        = "${var.cluster_name}-aws-lbc-"
+  assume_role_policy = data.aws_iam_policy_document.pod_identity_assume_role.json
+  tags               = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller_attach" {
+  role       = aws_iam_role.aws_load_balancer_controller.name
+  policy_arn = aws_iam_policy.aws_load_balancer_controller.arn
+}
 

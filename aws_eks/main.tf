@@ -1,9 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-import {
-  to = aws_eks_access_entry.system_node
-  id = "${var.cluster_name}:${module.iam.node_role_arn}"
-}
 
 module "vpc" {
   source = "./modules/vpc"
@@ -34,7 +30,7 @@ module "kms" {
   # On ajoute les ARNs manquants pour la politique KMS
   cluster_role_arn        = module.iam.cluster_role_arn
   pod_role_arn            = module.iam.pod_role_arn
-  karpenter_node_role_arn = module.iam.node_role_arn # <-- Ajoutez cette ligne
+  karpenter_node_role_arn = module.iam.karpenter_node_role_arn # <-- Ajoutez cette ligne
 
   # Ajoutez cluster_name car vous l'utilisez pour l'alias KMS
   cluster_name = var.cluster_name
@@ -52,6 +48,26 @@ module "iam" {
   tags         = var.tags
   cluster_arn  = "arn:aws:eks:${var.region}:${data.aws_caller_identity.current.account_id}:cluster/${var.cluster_name}"
   #pod_identity_associations = local.pod_identity_associations
+}
+
+module "rds_keycloak" {
+  source = "./modules/rds_keycloak"
+  providers = {
+    aws = aws.primary
+  }
+  vpc_id                               = module.vpc.vpc_id
+  private_subnet_ids                   = slice(module.vpc.private_subnet_ids, 0, 2)
+  ingress_controller_security_group_id = module.vpc.ingress_controller_sg_id
+}
+
+module "register_ms" {
+  source = "./modules/aurora_java_microservice"
+  providers = {
+    aws = aws.primary
+  }
+  vpc_id                               = module.vpc.vpc_id
+  private_subnet_ids                   = slice(module.vpc.private_subnet_ids, 0, 2)
+  ingress_controller_security_group_id = module.vpc.ingress_controller_sg_id
 }
 
 module "eks" {

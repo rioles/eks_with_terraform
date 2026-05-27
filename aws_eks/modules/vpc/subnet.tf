@@ -13,6 +13,8 @@ resource "aws_subnet" "public" {
     {
       Name = "${var.name_prefix}-public-${local.azs[count.index]}" # ← était var.azs
       Type = "public"
+      "kubernetes.io/role/elb"                    = "1"
+      "kubernetes.io/cluster/${var.name_prefix}" = "owned"
     }
   )
 }

@@ -16,16 +16,6 @@ resource "aws_eks_access_entry" "karpenter_node" {
 
 
 
-resource "aws_eks_access_entry" "system_node" {
-  cluster_name  = var.cluster_name
-  principal_arn = var.node_role_arn
-  type          = "EC2_LINUX"
-
-  lifecycle {
-    ignore_changes = [principal_arn]
-  }
-}
-
 resource "aws_eks_access_entry" "bastion" {
   cluster_name  = var.cluster_name
   principal_arn = var.bastion_role_arn
