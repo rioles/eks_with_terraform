@@ -128,6 +128,8 @@ resource "aws_iam_role" "bastion_role" {
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
 }
 
+
+
 resource "aws_iam_policy" "eks_access" {
   name_prefix = "${var.cluster_name}-bastion-eks-"
   policy      = data.aws_iam_policy_document.eks_access.json
@@ -138,6 +140,8 @@ resource "aws_iam_role_policy_attachment" "bastion_eks_access" {
   role       = aws_iam_role.bastion_role.name
   policy_arn = aws_iam_policy.eks_access.arn
 }
+
+
 
 resource "aws_iam_instance_profile" "bastion" {
   name_prefix = "${var.cluster_name}-bastion-"
@@ -297,3 +301,44 @@ resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller_attach" 
   policy_arn = aws_iam_policy.aws_load_balancer_controller.arn
 }
 
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "${var.name_prefix}-lambda-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = "sts:AssumeRole"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+
+  tags = {
+    Name = "${var.name_prefix}-lambda-execution-role"
+  }
+}
+
+
+resource "aws_iam_policy" "lambda_custom_policy" {
+  name        = "${var.name_prefix}-lambda-policy"
+  description = "Droits VPC, CloudWatch Logs et DynamoDB pour la Lambda Precheck"
+  policy      = data.aws_iam_policy_document.lambda_permissions.json
+}
+
+
+resource "aws_iam_role_policy_attachment" "lambda_policy_join" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_custom_policy.arn
+}
+
+resource "aws_vpc_endpoint_policy" "dynamodb" {
+  vpc_endpoint_id = var.vpc_endpoint_dynamodb_id
+  policy          = data.aws_iam_policy_document.dynamodb_vpce_policy.json
+}
+
+resource "aws_vpc_endpoint_policy" "s3" {
+  vpc_endpoint_id = var.s3_vpc_endpoint_id
+  policy          = data.aws_iam_policy_document.s3_vpce_policy.json
+}

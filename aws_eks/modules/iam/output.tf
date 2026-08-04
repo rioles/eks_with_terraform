@@ -60,3 +60,18 @@ output "alb_controller_role_arn" {
 output "register_ms_role_arn" {
   value = aws_iam_role.register_ms.arn
 }
+
+output "lambda_role_arn" {
+  description = "L'ARN du rôle IAM à fournir à la ressource aws_lambda_function"
+  value       = aws_iam_role.lambda_execution_role.arn
+}
+
+output "lambda_role_name" {
+  description = "Le nom du rôle IAM"
+  value       = aws_iam_role.lambda_execution_role.name
+}
+
+output "lambda_custom_policy_arn" {
+  description = "L'ARN de la politique de droits managée créée"
+  value       = aws_iam_policy.lambda_custom_policy.arn
+}

@@ -41,6 +41,7 @@ data "aws_iam_policy_document" "pod_identity_assume_role" {
   }
 }
 
+
 data "aws_iam_policy_document" "karpenter_controller_base" {
   statement {
     sid    = "AllowEC2"
@@ -199,9 +200,11 @@ data "aws_iam_policy_document" "ec2_assume_role" {
   }
 }
 
+
 data "aws_iam_policy_document" "eks_access" {
+  # 1. Accès au cluster EKS ET à ses sous-ressources (nodegroups, addons, etc.)
   statement {
-    sid    = "EKSClusterAccess"
+    sid    = "EKSClusterAndSubresourcesAccess"
     effect = "Allow"
     actions = [
       "eks:DescribeCluster",
@@ -214,18 +217,38 @@ data "aws_iam_policy_document" "eks_access" {
       "eks:DescribeAddon",
       "eks:ListUpdates",
       "eks:DescribeUpdate",
-      "eks:AccessKubernetesApi",
+      "eks:AccessKubernetesApi"
     ]
-    resources = [var.cluster_arn]
+    resources = [
+      var.cluster_arn,
+      "${var.cluster_arn}/*",
+      # Pattern spécifique pour les nodegroups (format différent !)
+      "arn:aws:eks:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:nodegroup/${var.cluster_name}/*"
+    ]
   }
 
+  # 2. Permission globale pour lister les clusters
   statement {
     sid       = "EKSListAll"
     effect    = "Allow"
     actions   = ["eks:ListClusters"]
     resources = ["*"]
   }
+
+  # 3. Permissions pour la résolution d'AMI Karpenter ET le taggage des Subnets
+  statement {
+    sid    = "KarpenterDiscoveryAndAMIPermissions"
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeImages",
+      "ec2:DescribeSubnets",
+      "ec2:CreateTags",       # <-- AJOUT : Permet de tagger les subnets (karpenter.sh/discovery)
+      "ssm:GetParameter"
+    ]
+    resources = ["*"]
+  }
 }
+
 
 data "aws_iam_policy_document" "pod_secrets_access" {
   statement {
@@ -343,5 +366,123 @@ data "aws_iam_policy_document" "register_ms_secret_access" {
   }
 }
 
+
+data "aws_iam_policy_document" "eso_global_secret_policy" {
+  statement {
+    sid    = "AllowEksClusterReadGlobalSecrets"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    
+    # On cible dynamiquement tous les secrets liés à CE cluster
+    resources = [
+      "arn:aws:secretsmanager:*:*:secret:${var.cluster_name}/*"
+    ]
+  }
+}
+
+
+data "aws_iam_policy_document" "lambda_permissions" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+      "ec2:AssignPrivateIpAddresses",
+      "ec2:UnassignPrivateIpAddresses"
+    ]
+    resources = ["*"]
+  }
+
+  # 2. CloudWatch Logs
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+
+  # 3. DynamoDB
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:BatchGetItem",
+      "dynamodb:Query",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
+    ]
+    resources = [
+       "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_table_name}"
+    ]
+  }
+
+  # 4. Secrets Manager
+  statement {
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+    resources = [var.redis_secret_arn] 
+  }
+}
+
+
+
+data "aws_iam_policy_document" "dynamodb_vpce_policy" {
+  statement {
+    effect    = "Allow"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions   = ["dynamodb:*"]
+    resources = ["*"]
+  }
+}
+
+data "aws_iam_policy_document" "s3_vpce_policy" {
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:DeleteObject",
+      "s3:ListBucket",
+    ]
+    resources = [
+      "arn:aws:s3:::states3bucket-deploy",
+      "arn:aws:s3:::states3bucket-deploy/*",
+      "arn:aws:s3:::*"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "django_permissions" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:DeleteObject",
+      "s3:ListBucket",
+    ]
+    resources = [
+      "arn:aws:s3:::states3bucket-deploy",
+      "arn:aws:s3:::states3bucket-deploy/*",
+    ]
+  }
+}
 
 

@@ -1,6 +1,6 @@
 resource "aws_security_group" "ingress_controller_sg" {
   name        = "ingress-controller-sg"
-  description = "Security Group unique pour l'Ingress Controller - Point d'entree global"
+  description = "Security Group unique pour Ingress Controller"
   vpc_id      = aws_vpc.main.id
 
   tags = {

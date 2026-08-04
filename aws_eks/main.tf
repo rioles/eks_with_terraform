@@ -19,6 +19,7 @@ module "vpc" {
   cluster_name       = var.cluster_name
 }
 
+
 module "kms" {
   source = "./modules/kms"
   providers = {
@@ -44,9 +45,16 @@ module "iam" {
   }
 
 
-  cluster_name = var.cluster_name
-  tags         = var.tags
-  cluster_arn  = "arn:aws:eks:${var.region}:${data.aws_caller_identity.current.account_id}:cluster/${var.cluster_name}"
+  cluster_name             = var.cluster_name
+  tags                     = var.tags
+  cluster_arn              = "arn:aws:eks:${var.region}:${data.aws_caller_identity.current.account_id}:cluster/${var.cluster_name}"
+  vpc_id                   = module.vpc.vpc_id
+  name_prefix              = var.cluster_name
+  aws_region               = var.aws_region
+  redis_secret_arn         = module.redis_bloomfilter.redis_secret_arn
+  dynamodb_table_name      = module.dynamodb.chunk_hashes_table_name
+  vpc_endpoint_dynamodb_id = module.vpc.dynamodb_vpc_endpoint_id
+  s3_vpc_endpoint_id       = module.vpc.s3_vpc_endpoint_id
   #pod_identity_associations = local.pod_identity_associations
 }
 
@@ -106,6 +114,7 @@ module "eks" {
   # --- Dépendance explicite ---
   # EKS a besoin que les rôles IAM existent avant de commencer
   depends_on = [module.iam]
+
 }
 
 
@@ -157,3 +166,60 @@ resource "aws_eks_pod_identity_association" "this" {
   depends_on = [module.eks, module.iam] # ← attend les deux ✅
 }
 
+
+# ==========================================
+# 2. MODULE REDIS BLOOMFILTER
+# ==========================================
+module "redis_bloomfilter" {
+  source = "./modules/redis_bloomfilter"
+  providers = {
+    aws = aws.primary
+  }
+
+  name_prefix              = var.cluster_name
+  vpc_id                   = module.vpc.vpc_id
+  private_subnet_ids       = module.vpc.private_subnet_ids
+  lambda_security_group_id = module.lambda_precheck.lambda_security_group_id
+  tags                     = var.tags
+}
+
+module "dynamodb" {
+  source      = "./modules/dynamodb"
+  name_prefix = var.name_prefix
+  tags        = var.tags
+}
+
+# ==========================================
+# 5. MODULE SQS
+# ==========================================
+module "sqs" {
+  source = "./modules/sqs"
+  providers = {
+    aws = aws.primary
+  }
+
+  name_prefix                  = var.cluster_name
+  tags                         = var.tags
+  transcode_visibility_timeout = 180
+  max_receive_count            = 3
+}
+
+
+# ==========================================
+# 4. MODULE LAMBDA PRECHECK & API GATEWAY
+# ==========================================
+module "lambda_precheck" {
+  source = "./modules/lambda_precheck"
+  providers = {
+    aws = aws.primary
+  }
+
+  name_prefix         = var.cluster_name
+  vpc_id              = module.vpc.vpc_id
+  private_subnet_ids  = module.vpc.private_subnet_ids
+  lambda_role_arn     = module.iam.lambda_role_arn
+  redis_secret_arn    = module.redis_bloomfilter.redis_secret_arn
+  dynamodb_table_name = module.dynamodb.chunk_hashes_table_name
+  redis_endpoint      = module.redis_bloomfilter.redis_endpoint
+  tags                = var.tags
+}

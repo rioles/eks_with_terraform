@@ -14,7 +14,7 @@ provider "aws" {
 
 resource "aws_security_group" "keycloak_app_security_group" {
   name        = "keycloak_app_security_group"
-  description = "Security Group pour l'application Keycloak (derriere Ingress Controller)"
+  description = "Security Group pour application Keycloak (derriere Ingress Controller)"
   vpc_id      = var.vpc_id
 
   tags = {
@@ -121,5 +121,7 @@ resource "aws_db_instance" "keycloak_db" {
     Project = "Keycloak"
   }
 }
+
+
 
 

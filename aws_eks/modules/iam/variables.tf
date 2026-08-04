@@ -49,4 +49,38 @@ variable "register_ms_tags" {
   }
 }
 
+variable "name_prefix" {
+  description = "Prefix pour le nom des ressources"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "Région AWS"
+  type        = string
+}
+
+
+variable "redis_secret_arn" {
+  description = "ARN du secret Redis dans Secrets Manager"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "ID of the VPC to restrict the endpoint policy"
+  type        = string
+}
+
+variable "vpc_endpoint_dynamodb_id" {
+  type = string
+}
+
+variable "dynamodb_table_name" {
+  type        = string
+  description = "ARN de la table chunk_hashes"
+}
+
+variable "s3_vpc_endpoint_id" {
+  type        = string
+  description = "ID du VPC Endpoint S3 en provenance du module VPC"
+}
 

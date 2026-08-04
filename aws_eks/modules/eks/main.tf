@@ -252,3 +252,4 @@ resource "aws_eks_addon" "pod_identity" {
 
   tags = var.tags
 }
+

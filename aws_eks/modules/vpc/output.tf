@@ -47,3 +47,15 @@ output "ingress_controller_sg_id" {
   value       = aws_security_group.ingress_controller_sg.id
   description = "L'ID du Security Group de l'Ingress Controller (à passer aux modules applicatifs)"
 }
+
+# here
+
+output "dynamodb_vpc_endpoint_id" {
+  description = "ID du VPC endpoint pour DynamoDB"
+  value       = aws_vpc_endpoint.dynamodb.id
+}
+
+output "s3_vpc_endpoint_id" {
+  description = "ID du VPC endpoint pour DynamoDB"
+  value       = aws_vpc_endpoint.s3.id
+}

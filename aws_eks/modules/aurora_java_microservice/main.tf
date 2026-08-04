@@ -14,7 +14,7 @@ provider "aws" {
 
 resource "aws_security_group" "register_ms_app_security_group" {
   name        = "register_ms_app_security_group"
-  description = "Security Group pour l'application Register Microservice (derriere Ingress Controller)"
+  description = "Security Group pour application Register Microservice (behind Ingress Controller)"
   vpc_id      = var.vpc_id
 
   tags = {
@@ -103,7 +103,7 @@ resource "aws_secretsmanager_secret_version" "aurora_secret_val" {
 resource "aws_rds_cluster" "register_ms_aurora_cluster" {
   cluster_identifier = "register-ms-aurora-cluster"
   engine             = "aurora-postgresql"
-  engine_version     = "15.4"
+  engine_version     = "15.10"
   database_name      = "db_registration"
 
   master_username = "register_user"                      
